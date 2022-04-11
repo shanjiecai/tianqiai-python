@@ -10,11 +10,11 @@ from urllib.parse import urlencode, urlsplit, urlunsplit
 
 import requests
 
-import zhipuai
-from zhipuai import error, util, version
-from zhipuai.zhipuai_response import zhipuaiResponse
-from zhipuai.util import ApiType
-# from zhipuai_response import zhipuaiResponse
+import tianqiai
+from tianqiai import error, util, version
+from tianqiai.tianqiai_response import tianqiaiResponse
+from tianqiai.util import ApiType
+# from tianqiai_response import tianqiaiResponse
 # from util import ApiType 
 # import error, util, version 
 
@@ -45,15 +45,15 @@ def _requests_proxies_arg(proxy) -> Optional[Dict[str, str]]:
         return proxy.copy()
     else:
         raise ValueError(
-            "'zhipuai.proxy' must be specified as either a string URL or a dict with string URL under the https and/or http keys."
+            "'tianqiai.proxy' must be specified as either a string URL or a dict with string URL under the https and/or http keys."
         )
 
 
 def _make_session() -> requests.Session:
-    # if not zhipuai.verify_ssl_certs:
-    #     warnings.warn("verify_ssl_certs is ignored; zhipuai always verifies.")
+    # if not tianqiai.verify_ssl_certs:
+    #     warnings.warn("verify_ssl_certs is ignored; tianqiai always verifies.")
     s = requests.Session()
-    proxies = _requests_proxies_arg(zhipuai.proxy)
+    proxies = _requests_proxies_arg(tianqiai.proxy)
     if proxies:
         s.proxies = proxies
     s.mount(
@@ -77,11 +77,11 @@ def parse_stream(rbody):
 
 class APIRequestor:
     def __init__(self, key=None, api_base=None, api_type=None, api_version=None, organization=None):
-        self.api_base = api_base or zhipuai.api_base
+        self.api_base = api_base or tianqiai.api_base
         self.api_key = key or util.default_api_key()
-        self.api_type = ApiType.from_str(api_type) if api_type else ApiType.from_str(zhipuai.api_type)
-        self.api_version = api_version or zhipuai.api_version
-        self.organization = organization or zhipuai.organization
+        self.api_type = ApiType.from_str(api_type) if api_type else ApiType.from_str(tianqiai.api_type)
+        self.api_version = api_version or tianqiai.api_version
+        self.organization = organization or tianqiai.organization
 
     @classmethod
     def format_app_info(cls, info):
@@ -101,7 +101,7 @@ class APIRequestor:
         files=None,
         stream=False,
         request_id: Optional[str] = None,
-    ) -> Tuple[Union[zhipuaiResponse, Iterator[zhipuaiResponse]], bool, str]:
+    ) -> Tuple[Union[tianqiaiResponse, Iterator[tianqiaiResponse]], bool, str]:
         result = self.request_raw(
             method.lower(),
             url,
@@ -134,7 +134,7 @@ class APIRequestor:
             error_data["message"] += "\n\n" + error_data["internal_message"]
 
         util.log_info(
-            "zhipuai API error received",
+            "tianqiai API error received",
             error_code=error_data.get("code"),
             error_type=error_data.get("type"),
             error_message=error_data.get("message"),
@@ -182,9 +182,9 @@ class APIRequestor:
     def request_headers(
         self, method: str, extra, request_id: Optional[str]
     ) -> Dict[str, str]:
-        user_agent = "ZhipuAI/v1 PythonBindings/%s" % (version.VERSION,)
-        if zhipuai.app_info:
-            user_agent += " " + self.format_app_info(zhipuai.app_info)
+        user_agent = "tianqiai/v1 PythonBindings/%s" % (version.VERSION,)
+        if tianqiai.app_info:
+            user_agent += " " + self.format_app_info(tianqiai.app_info)
 
         uname_without_node = " ".join(
             v for k, v in platform.uname()._asdict().items() if k != "node"
@@ -195,28 +195,28 @@ class APIRequestor:
             "lang": "python",
             "lang_version": platform.python_version(),
             "platform": platform.platform(),
-            "publisher": "zhipuai",
+            "publisher": "tianqiai",
             "uname": uname_without_node,
         }
-        if zhipuai.app_info:
-            ua["application"] = zhipuai.app_info
+        if tianqiai.app_info:
+            ua["application"] = tianqiai.app_info
 
         headers = {
-            "X-ZhipuAI-Client-User-Agent": json.dumps(ua),
+            "X-tianqiai-Client-User-Agent": json.dumps(ua),
             "User-Agent": user_agent,
         }
 
         headers.update(util.api_key_to_header(self.api_type, self.api_key))
 
         if self.organization:
-            headers["ZhipuAI-Organization"] = self.organization
+            headers["tianqiai-Organization"] = self.organization
 
         if self.api_version is not None and self.api_type == ApiType.ZHIPU_AI:
-            headers["ZhipuAI-Version"] = self.api_version
+            headers["tianqiai-Version"] = self.api_version
         if request_id is not None:
             headers["X-Request-Id"] = request_id
-        if zhipuai.debug:
-            headers["ZhipuAI-Debug"] = "true"
+        if tianqiai.debug:
+            headers["tianqiai-Debug"] = "true"
         headers.update(extra)
 
         return headers
@@ -275,13 +275,13 @@ class APIRequestor:
         else:
             raise error.APIConnectionError(
                 "Unrecognized HTTP method %r. This may indicate a bug in the "
-                "zhipuai bindings. Please contact support@zhipuai.com for "
+                "tianqiai bindings. Please contact support@tianqiai.com for "
                 "assistance." % (method,)
             )
 
         headers = self.request_headers(method, headers, request_id)
 
-        util.log_info("Request to zhipuai API", method=method, path=abs_url)
+        util.log_info("Request to tianqiai API", method=method, path=abs_url)
         util.log_debug("Post details", data=data, api_version=self.api_version)
 
         if not hasattr(_thread_context, "session"):
@@ -297,15 +297,15 @@ class APIRequestor:
                 timeout=TIMEOUT_SECS,
             )
         except requests.exceptions.RequestException as e:
-            raise error.APIConnectionError("Error communicating with zhipuai") from e
+            raise error.APIConnectionError("Error communicating with tianqiai") from e
         util.log_info(
-            "zhipuai API response",
+            "tianqiai API response",
             path=abs_url,
             response_code=result.status_code,
-            processing_ms=result.headers.get("zhipuai-Processing-Ms"),
+            processing_ms=result.headers.get("tianqiai-Processing-Ms"),
         )
         # Don't read the whole stream for debug logging unless necessary.
-        if zhipuai.log == "debug":
+        if tianqiai.log == "debug":
             util.log_debug(
                 "API response body", body=result.content, headers=result.headers
             )
@@ -313,7 +313,7 @@ class APIRequestor:
 
     def _interpret_response(
         self, result: requests.Response, stream: bool
-    ) -> Tuple[Union[zhipuaiResponse, Iterator[zhipuaiResponse]], bool]:
+    ) -> Tuple[Union[tianqiaiResponse, Iterator[tianqiaiResponse]], bool]:
         """Returns the response(s) and a bool indicating whether it is a stream."""
         if stream and "text/event-stream" in result.headers.get("Content-Type", ""):
             return (
@@ -332,7 +332,7 @@ class APIRequestor:
 
     def _interpret_response_line(
         self, rbody, rcode, rheaders, stream: bool
-    ) -> zhipuaiResponse:
+    ) -> tianqiaiResponse:
         if rcode == 503:
             raise error.ServiceUnavailableError(
                 "The server is overloaded or not ready yet.", rbody, rcode, headers=rheaders
@@ -345,7 +345,7 @@ class APIRequestor:
             raise error.APIError(
                 f"HTTP code {rcode} from API ({rbody})", rbody, rcode, headers=rheaders
             )
-        resp = zhipuaiResponse(data, rheaders)
+        resp = tianqiaiResponse(data, rheaders)
         # In the future, we might add a "status" parameter to errors
         # to better handle the "error while streaming" case.
         stream_error = stream and "error" in resp.data

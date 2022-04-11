@@ -3,8 +3,8 @@
 # import logging
 # import sys
 
-# import zhipuai
-# from zhipuai.cli import api_register, display_error, tools_register, wandb_register
+# import tianqiai
+# from tianqiai.cli import api_register, display_error, tools_register, wandb_register
 
 # logger = logging.getLogger()
 # formatter = logging.Formatter("[%(asctime)s] %(message)s")
@@ -51,17 +51,17 @@
 #     elif args.verbosity >= 2:
 #         logger.setLevel(logging.DEBUG)
 
-#     zhipuai.debug = True
+#     tianqiai.debug = True
 #     if args.api_key is not None:
-#         zhipuai.api_key = args.api_key
+#         tianqiai.api_key = args.api_key
 #     if args.api_base is not None:
-#         zhipuai.api_base = args.api_base
+#         tianqiai.api_base = args.api_base
 #     if args.organization is not None:
-#         zhipuai.organization = args.organization
+#         tianqiai.organization = args.organization
 
 #     try:
 #         args.func(args)
-#     except zhipuai.error.zhipuaiError as e:
+#     except tianqiai.error.tianqiaiError as e:
 #         display_error(e)
 #         return 1
 #     except KeyboardInterrupt:

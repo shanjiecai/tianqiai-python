@@ -3,11 +3,11 @@ import time
 from typing import Optional
 from urllib.parse import quote_plus
 
-import zhipuai
-from zhipuai import api_requestor, error, util
-from zhipuai.api_resources.abstract.api_resource import APIResource
-from zhipuai.zhipuai_response import zhipuaiResponse
-from zhipuai.util import ApiType
+import tianqiai
+from tianqiai import api_requestor, error, util
+from tianqiai.api_resources.abstract.api_resource import APIResource
+from tianqiai.tianqiai_response import tianqiaiResponse
+from tianqiai.util import ApiType
 
 MAX_TIMEOUT = 20
 
@@ -15,7 +15,7 @@ MAX_TIMEOUT = 20
 class EngineAPIResource(APIResource):
     engine_required = True
     plain_old_data = False
-    azure_api_prefix = 'zhipuai/deployments'
+    azure_api_prefix = 'tianqiai/deployments'
 
     def __init__(self, engine: Optional[str] = None, **kwargs):
         super().__init__(engine=engine, **kwargs)
@@ -26,15 +26,15 @@ class EngineAPIResource(APIResource):
         # with forward slashes (/), so replace the former with the latter.
         model = cls.OBJECT_NAME.replace(".", "/")  # type: ignore
         # completion
-        typed_api_type = ApiType.from_str(api_type) if api_type else ApiType.from_str(zhipuai.api_type)
-        api_version = api_version or zhipuai.api_version
+        typed_api_type = ApiType.from_str(api_type) if api_type else ApiType.from_str(tianqiai.api_type)
+        api_version = api_version or tianqiai.api_version
 
         # if typed_api_type == ApiType.AZURE:
         #     if not api_version:
         #         raise error.InvalidRequestError("An API version is required for the Azure API type.")
         #     if engine is None:
         #         raise error.InvalidRequestError(
-        #             "You must provide the deployment name in the 'engine' parameter to access the Azure zhipuai service"
+        #             "You must provide the deployment name in the 'engine' parameter to access the Azure tianqiai service"
         #         )
         #     extn = quote_plus(engine)
         #     return "/%s/%s/%ss?api-version=%s" % (cls.azure_api_prefix, extn, base, api_version)
@@ -106,9 +106,9 @@ class EngineAPIResource(APIResource):
         )
 
         # if stream: # False
-        #     assert not isinstance(response, zhipuaiResponse)  # must be an iterator
+        #     assert not isinstance(response, tianqiaiResponse)  # must be an iterator
         #     return (
-        #         util.convert_to_zhipuai_object(
+        #         util.convert_to_tianqiai_object(
         #             line,
         #             api_key,
         #             api_version,
@@ -119,7 +119,7 @@ class EngineAPIResource(APIResource):
         #         for line in response
         #     )
         # else:
-        #     obj = util.convert_to_zhipuai_object(
+        #     obj = util.convert_to_tianqiai_object(
         #         response,
         #         api_key,
         #         api_version,
@@ -146,7 +146,7 @@ class EngineAPIResource(APIResource):
 
         params_connector = '?'
         if self.typed_api_type == ApiType.AZURE:
-            api_version = self.api_version or zhipuai.api_version
+            api_version = self.api_version or tianqiai.api_version
             if not api_version:
                 raise error.InvalidRequestError("An API version is required for the Azure API type.")
             extn = quote_plus(id)

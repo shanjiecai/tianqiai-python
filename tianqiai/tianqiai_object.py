@@ -2,13 +2,13 @@ import json
 from copy import deepcopy
 from typing import Optional
 
-import zhipuai
-from zhipuai import api_requestor, util
-from zhipuai.zhipuai_response import zhipuaiResponse
-from zhipuai.util import ApiType
+import tianqiai
+from tianqiai import api_requestor, util
+from tianqiai.tianqiai_response import tianqiaiResponse
+from tianqiai.util import ApiType
 
 
-class zhipuaiObject(dict):
+class tianqiaiObject(dict):
     api_base_override = None
 
     def __init__(
@@ -23,7 +23,7 @@ class zhipuaiObject(dict):
         engine=None,
         **params,
     ):
-        super(zhipuaiObject, self).__init__()
+        super(tianqiaiObject, self).__init__()
 
         if response_ms is not None and not isinstance(response_ms, int):
             raise TypeError(f"response_ms is a {type(response_ms).__name__}.")
@@ -47,7 +47,7 @@ class zhipuaiObject(dict):
 
     def __setattr__(self, k, v):
         if k[0] == "_" or k in self.__dict__:
-            return super(zhipuaiObject, self).__setattr__(k, v)
+            return super(tianqiaiObject, self).__setattr__(k, v)
 
         self[k] = v
         return None
@@ -62,7 +62,7 @@ class zhipuaiObject(dict):
 
     def __delattr__(self, k):
         if k[0] == "_" or k in self.__dict__:
-            return super(zhipuaiObject, self).__delattr__(k)
+            return super(tianqiaiObject, self).__delattr__(k)
         else:
             del self[k]
 
@@ -73,7 +73,7 @@ class zhipuaiObject(dict):
                 "We interpret empty strings as None in requests."
                 "You may set %s.%s = None to delete the property" % (k, str(self), k)
             )
-        super(zhipuaiObject, self).__setitem__(k, v)
+        super(tianqiaiObject, self).__setitem__(k, v)
 
     def __delitem__(self, k):
         raise NotImplementedError("del is not supported")
@@ -146,8 +146,8 @@ class zhipuaiObject(dict):
         # Wipe old state before setting new.
         self.clear()
         for k, v in values.items():
-            super(zhipuaiObject, self).__setitem__(
-                k, util.convert_to_zhipuai_object(v, api_key, api_version, organization)
+            super(tianqiaiObject, self).__setitem__(
+                k, util.convert_to_tianqiai_object(v, api_key, api_version, organization)
             )
 
         self._previous = values
@@ -185,9 +185,9 @@ class zhipuaiObject(dict):
         )
 
         if stream:
-            assert not isinstance(response, zhipuaiResponse)  # must be an iterator
+            assert not isinstance(response, tianqiaiResponse)  # must be an iterator
             return (
-                util.convert_to_zhipuai_object(
+                util.convert_to_tianqiai_object(
                     line,
                     api_key,
                     self.api_version,
@@ -197,7 +197,7 @@ class zhipuaiObject(dict):
                 for line in response
             )
         else:
-            return util.convert_to_zhipuai_object(
+            return util.convert_to_tianqiai_object(
                 response,
                 api_key,
                 self.api_version,
@@ -233,22 +233,22 @@ class zhipuaiObject(dict):
     def to_dict_recursive(self):
         d = dict(self)
         for k, v in d.items():
-            if isinstance(v, zhipuaiObject):
+            if isinstance(v, tianqiaiObject):
                 d[k] = v.to_dict_recursive()
             elif isinstance(v, list):
                 d[k] = [
-                    e.to_dict_recursive() if isinstance(e, zhipuaiObject) else e
+                    e.to_dict_recursive() if isinstance(e, tianqiaiObject) else e
                     for e in v
                 ]
         return d
 
     @property
-    def zhipuai_id(self):
+    def tianqiai_id(self):
         return self.id
 
     @property
     def typed_api_type(self):
-        return ApiType.from_str(self.api_type) if self.api_type else ApiType.from_str(zhipuai.api_type)
+        return ApiType.from_str(self.api_type) if self.api_type else ApiType.from_str(tianqiai.api_type)
 
     # This class overrides __setitem__ to throw exceptions on inputs that it
     # doesn't like. This can cause problems when we try to copy an object
@@ -256,7 +256,7 @@ class zhipuaiObject(dict):
     # if it was set to be set manually. Here we override the class' copy
     # arguments so that we can bypass these possible exceptions on __setitem__.
     def __copy__(self):
-        copied = zhipuaiObject(
+        copied = tianqiaiObject(
             self.get("id"),
             self.api_key,
             api_version=self.api_version,
@@ -269,7 +269,7 @@ class zhipuaiObject(dict):
         for k, v in self.items():
             # Call parent's __setitem__ to avoid checks that we've added in the
             # overridden version that can throw exceptions.
-            super(zhipuaiObject, copied).__setitem__(k, v)
+            super(tianqiaiObject, copied).__setitem__(k, v)
 
         return copied
 
@@ -285,6 +285,6 @@ class zhipuaiObject(dict):
         for k, v in self.items():
             # Call parent's __setitem__ to avoid checks that we've added in the
             # overridden version that can throw exceptions.
-            super(zhipuaiObject, copied).__setitem__(k, deepcopy(v, memo))
+            super(tianqiaiObject, copied).__setitem__(k, deepcopy(v, memo))
 
         return copied

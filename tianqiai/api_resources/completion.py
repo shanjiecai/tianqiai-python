@@ -1,9 +1,9 @@
 import time
 
-from zhipuai import util
-# from zhipuai.api_resources.abstract import DeletableAPIResource, ListableAPIResource
-from zhipuai.api_resources.abstract.engine_api_resource import EngineAPIResource
-from zhipuai.error import InvalidRequestError, TryAgain
+from tianqiai import util
+# from tianqiai.api_resources.abstract import DeletableAPIResource, ListableAPIResource
+from tianqiai.api_resources.abstract.engine_api_resource import EngineAPIResource
+from tianqiai.error import InvalidRequestError, TryAgain
 
 
 class Completion(EngineAPIResource):
@@ -15,7 +15,7 @@ class Completion(EngineAPIResource):
         """
         Creates a new completion for the provided prompt and parameters.
 
-        See https://beta.zhipuai.com/docs/api-reference/completions/create for a list
+        See https://beta.tianqiai.com/docs/api-reference/completions/create for a list
         of valid parameters.
         """
         start = time.time()

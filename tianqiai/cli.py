@@ -8,9 +8,9 @@
 
 # import requests
 
-# import zhipuai
-# from zhipuai.upload_progress import BufferReader
-# from zhipuai.validators import (
+# import tianqiai
+# from tianqiai.upload_progress import BufferReader
+# from tianqiai.validators import (
 #     apply_necessary_remediation,
 #     apply_validators,
 #     get_search_validators,
@@ -19,7 +19,7 @@
 #     write_out_file,
 #     write_out_search_file,
 # )
-# # import zhipuai.wandb_logger
+# # import tianqiai.wandb_logger
 
 
 # class bcolors:
@@ -63,12 +63,12 @@
 # class Engine:
 #     @classmethod
 #     def get(cls, args):
-#         engine = zhipuai.Engine.retrieve(id=args.id)
+#         engine = tianqiai.Engine.retrieve(id=args.id)
 #         display(engine)
 
 #     @classmethod
 #     def update(cls, args):
-#         engine = zhipuai.Engine.modify(args.id, replicas=args.replicas)
+#         engine = tianqiai.Engine.modify(args.id, replicas=args.replicas)
 #         display(engine)
 
 #     @classmethod
@@ -77,12 +77,12 @@
 #             "Engine.generate is deprecated, use Completion.create", DeprecationWarning
 #         )
 #         if args.completions and args.completions > 1 and args.stream:
-#             raise ValueError("Can't stream multiple completions with zhipuai CLI")
+#             raise ValueError("Can't stream multiple completions with tianqiai CLI")
 
 #         kwargs = {}
 #         if args.model is not None:
 #             kwargs["model"] = args.model
-#         resp = zhipuai.Engine(id=args.id).generate(
+#         resp = tianqiai.Engine(id=args.id).generate(
 #             completions=args.completions,
 #             context=args.context,
 #             length=args.length,
@@ -121,7 +121,7 @@
 #         if args.version:
 #             params["version"] = args.version
 
-#         resp = zhipuai.Engine(id=args.id).search(**params)
+#         resp = tianqiai.Engine(id=args.id).search(**params)
 #         scores = [
 #             (search_result["score"], search_result["document"])
 #             for search_result in resp["data"]
@@ -142,7 +142,7 @@
 
 #     @classmethod
 #     def list(cls, args):
-#         engines = zhipuai.Engine.list()
+#         engines = tianqiai.Engine.list()
 #         display(engines)
 
 
@@ -157,7 +157,7 @@
 #                 "In most cases, you should not be specifying both engine and model."
 #             )
 
-#         resp = zhipuai.Completion.create(
+#         resp = tianqiai.Completion.create(
 #             engine=args.engine,
 #             model=args.model,
 #             n=args.n,
@@ -187,17 +187,17 @@
 # class Model:
 #     @classmethod
 #     def get(cls, args):
-#         resp = zhipuai.Model.retrieve(id=args.id)
+#         resp = tianqiai.Model.retrieve(id=args.id)
 #         print(resp)
 
 #     @classmethod
 #     def delete(cls, args):
-#         model = zhipuai.Model.delete(args.id)
+#         model = tianqiai.Model.delete(args.id)
 #         print(model)
 
 #     @classmethod
 #     def list(cls, args):
-#         models = zhipuai.Model.list()
+#         models = tianqiai.Model.list()
 #         print(models)
 
 
@@ -206,7 +206,7 @@
 #     def create(cls, args):
 #         with open(args.file, "rb") as file_reader:
 #             buffer_reader = BufferReader(file_reader.read(), desc="Upload progress")
-#         resp = zhipuai.File.create(
+#         resp = tianqiai.File.create(
 #             file=buffer_reader,
 #             purpose=args.purpose,
 #             model=args.model,
@@ -216,17 +216,17 @@
 
 #     @classmethod
 #     def get(cls, args):
-#         resp = zhipuai.File.retrieve(id=args.id)
+#         resp = tianqiai.File.retrieve(id=args.id)
 #         print(resp)
 
 #     @classmethod
 #     def delete(cls, args):
-#         file = zhipuai.File.delete(args.id)
+#         file = tianqiai.File.delete(args.id)
 #         print(file)
 
 #     @classmethod
 #     def list(cls, args):
-#         file = zhipuai.File.list()
+#         file = tianqiai.File.list()
 #         print(file)
 
 
@@ -267,7 +267,7 @@
 
 #     @classmethod
 #     def create_alpha(cls, args):
-#         resp = zhipuai.Search.create_alpha(
+#         resp = tianqiai.Search.create_alpha(
 #             query=[args.query],
 #             max_documents=args.max_documents,
 #             file_id=args.file,
@@ -278,7 +278,7 @@
 # class FineTune:
 #     @classmethod
 #     def list(cls, args):
-#         resp = zhipuai.FineTune.list()
+#         resp = tianqiai.FineTune.list()
 #         print(resp)
 
 #     @classmethod
@@ -312,7 +312,7 @@
 
 #         if check_if_file_exists:
 #             bytes = len(content)
-#             matching_files = zhipuai.File.find_matching_files(
+#             matching_files = tianqiai.File.find_matching_files(
 #                 name=user_provided_file or f.name, bytes=bytes, purpose="fine-tune"
 #             )
 #             if len(matching_files) > 0:
@@ -344,7 +344,7 @@
 #                         )
 
 #         buffer_reader = BufferReader(content, desc="Upload progress")
-#         resp = zhipuai.File.create(
+#         resp = tianqiai.File.create(
 #             file=buffer_reader,
 #             purpose="fine-tune",
 #             user_provided_filename=user_provided_file or file,
@@ -360,9 +360,9 @@
 #     def _get_or_upload(cls, file, check_if_file_exists=True):
 #         try:
 #             # 1. If it's a valid file, use it
-#             zhipuai.File.retrieve(file)
+#             tianqiai.File.retrieve(file)
 #             return file
-#         except zhipuai.error.InvalidRequestError:
+#         except tianqiai.error.InvalidRequestError:
 #             pass
 #         if os.path.isfile(file):
 #             # 2. If it's a file on the filesystem, upload it
@@ -407,7 +407,7 @@
 #             if attr is not None:
 #                 create_args[hparam] = attr
 
-#         resp = zhipuai.FineTune.create(**create_args)
+#         resp = tianqiai.FineTune.create(**create_args)
 
 #         if args.no_follow:
 #             print(resp)
@@ -424,32 +424,32 @@
 
 #     @classmethod
 #     def get(cls, args):
-#         resp = zhipuai.FineTune.retrieve(id=args.id)
+#         resp = tianqiai.FineTune.retrieve(id=args.id)
 #         print(resp)
 
 #     @classmethod
 #     def results(cls, args):
-#         fine_tune = zhipuai.FineTune.retrieve(id=args.id)
+#         fine_tune = tianqiai.FineTune.retrieve(id=args.id)
 #         if "result_files" not in fine_tune or len(fine_tune["result_files"]) == 0:
-#             raise zhipuai.error.InvalidRequestError(
+#             raise tianqiai.error.InvalidRequestError(
 #                 f"No results file available for fine-tune {args.id}", "id"
 #             )
-#         result_file = zhipuai.FineTune.retrieve(id=args.id)["result_files"][0]
-#         resp = zhipuai.File.download(id=result_file["id"])
+#         result_file = tianqiai.FineTune.retrieve(id=args.id)["result_files"][0]
+#         resp = tianqiai.File.download(id=result_file["id"])
 #         print(resp.decode("utf-8"))
 
 #     @classmethod
 #     def events(cls, args):
 #         if args.stream:
-#             raise zhipuai.error.zhipuaiError(
+#             raise tianqiai.error.tianqiaiError(
 #                 message=(
 #                     "The --stream parameter is deprecated, use fine_tunes.follow "
 #                     "instead:\n\n"
-#                     "  zhipuai api fine_tunes.follow -i {id}\n".format(id=args.id)
+#                     "  tianqiai api fine_tunes.follow -i {id}\n".format(id=args.id)
 #                 ),
 #             )
 
-#         resp = zhipuai.FineTune.list_events(id=args.id)  # type: ignore
+#         resp = tianqiai.FineTune.list_events(id=args.id)  # type: ignore
 #         print(resp)
 
 #     @classmethod
@@ -459,13 +459,13 @@
 #     @classmethod
 #     def _stream_events(cls, job_id):
 #         def signal_handler(sig, frame):
-#             status = zhipuai.FineTune.retrieve(job_id).status
+#             status = tianqiai.FineTune.retrieve(job_id).status
 #             sys.stdout.write(
 #                 "\nStream interrupted. Job is still {status}.\n"
 #                 "To resume the stream, run:\n\n"
-#                 "  zhipuai api fine_tunes.follow -i {job_id}\n\n"
+#                 "  tianqiai api fine_tunes.follow -i {job_id}\n\n"
 #                 "To cancel your job, run:\n\n"
-#                 "  zhipuai api fine_tunes.cancel -i {job_id}\n\n".format(
+#                 "  tianqiai api fine_tunes.cancel -i {job_id}\n\n".format(
 #                     status=status, job_id=job_id
 #                 )
 #             )
@@ -473,7 +473,7 @@
 
 #         signal.signal(signal.SIGINT, signal_handler)
 
-#         events = zhipuai.FineTune.stream_events(job_id)
+#         events = tianqiai.FineTune.stream_events(job_id)
 #         # TODO(rachel): Add a nifty spinner here.
 #         try:
 #             for event in events:
@@ -490,29 +490,29 @@
 #             sys.stdout.write(
 #                 "\nStream interrupted (client disconnected).\n"
 #                 "To resume the stream, run:\n\n"
-#                 "  zhipuai api fine_tunes.follow -i {job_id}\n\n".format(job_id=job_id)
+#                 "  tianqiai api fine_tunes.follow -i {job_id}\n\n".format(job_id=job_id)
 #             )
 #             return
 
-#         resp = zhipuai.FineTune.retrieve(id=job_id)
+#         resp = tianqiai.FineTune.retrieve(id=job_id)
 #         status = resp["status"]
 #         if status == "succeeded":
 #             sys.stdout.write("\nJob complete! Status: succeeded 🎉")
 #             sys.stdout.write(
 #                 "\nTry out your fine-tuned model:\n\n"
-#                 "zhipuai api completions.create -m {model} -p <YOUR_PROMPT>".format(
+#                 "tianqiai api completions.create -m {model} -p <YOUR_PROMPT>".format(
 #                     model=resp["fine_tuned_model"]
 #                 )
 #             )
 #         elif status == "failed":
 #             sys.stdout.write(
-#                 "\nJob failed. Please contact support@zhipuai.com if you need assistance."
+#                 "\nJob failed. Please contact support@tianqiai.com if you need assistance."
 #             )
 #         sys.stdout.write("\n")
 
 #     @classmethod
 #     def cancel(cls, args):
-#         resp = zhipuai.FineTune.cancel(id=args.id)
+#         resp = tianqiai.FineTune.cancel(id=args.id)
 #         print(resp)
 
 #     @classmethod
@@ -539,7 +539,7 @@
 # # class WandbLogger:
 # #     @classmethod
 # #     def sync(cls, args):
-# #         resp = zhipuai.wandb_logger.WandbLogger.sync(
+# #         resp = tianqiai.wandb_logger.WandbLogger.sync(
 # #             id=args.id,
 # #             n_fine_tunes=args.n_fine_tunes,
 # #             project=args.project,
@@ -734,7 +734,7 @@
 #     sub.add_argument(
 #         "-e",
 #         "--engine",
-#         help="The engine to use. See https://beta.zhipuai.com/docs/engines for more about what engines are available.",
+#         help="The engine to use. See https://beta.tianqiai.com/docs/engines for more about what engines are available.",
 #     )
 #     sub.add_argument(
 #         "-m",
@@ -804,7 +804,7 @@
 #     sub.add_argument(
 #         "-p",
 #         "--purpose",
-#         help="Why are you uploading this file? (see https://beta.zhipuai.com/docs/api-reference/ for purposes)",
+#         help="Why are you uploading this file? (see https://beta.tianqiai.com/docs/api-reference/ for purposes)",
 #         required=True,
 #     )
 #     sub.add_argument(
@@ -859,14 +859,14 @@
 #         "--training_file",
 #         required=True,
 #         help="JSONL file containing prompt-completion examples for training. This can "
-#         "be the ID of a file uploaded through the zhipuai API (e.g. file-abcde12345), "
+#         "be the ID of a file uploaded through the tianqiai API (e.g. file-abcde12345), "
 #         'a local file path, or a URL that starts with "http".',
 #     )
 #     sub.add_argument(
 #         "-v",
 #         "--validation_file",
 #         help="JSONL file containing prompt-completion examples for validation. This can "
-#         "be the ID of a file uploaded through the zhipuai API (e.g. file-abcde12345), "
+#         "be the ID of a file uploaded through the tianqiai API (e.g. file-abcde12345), "
 #         'a local file path, or a URL that starts with "http".',
 #     )
 #     sub.add_argument(

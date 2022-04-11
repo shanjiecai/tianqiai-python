@@ -1,11 +1,11 @@
-# zhipuai Python bindings.
+# tianqiai Python bindings.
 #
 # Originally forked from the MIT-licensed Stripe Python bindings.
 
 import os
 from typing import Optional
 
-from zhipuai.api_resources import (
+from tianqiai.api_resources import (
     # Answer,
     # Classification,
     Completion,
@@ -17,17 +17,17 @@ from zhipuai.api_resources import (
     # Model,
     # Search,
 )
-from zhipuai.error import APIError, InvalidRequestError, ZhipuAIError
+from tianqiai.error import APIError, InvalidRequestError, tianqiaiError
 
-api_key = os.environ.get("ZHIPUAI_API_KEY")
+api_key = os.environ.get("tianqiai_API_KEY")
 # Path of a file with an API key, whose contents can change. Supercedes
 # `api_key` if set.  The main use case is volume-mounted Kubernetes secrets,
 # which are updated automatically.
-api_key_path: Optional[str] = os.environ.get("ZHIPUAI_API_KEY_PATH")
+api_key_path: Optional[str] = os.environ.get("tianqiai_API_KEY_PATH")
 
-organization = os.environ.get("ZHIPUAI_ORGANIZATION")
-api_base = os.environ.get("ZHIPUAI_API_BASE", "https://wudao.aminer.cn/os/api")
-api_version = os.environ.get("ZHIPUAI_API_VERSION", "v2")
+organization = os.environ.get("tianqiai_ORGANIZATION")
+api_base = os.environ.get("tianqiai_API_BASE", "https://wudao.aminer.cn/os/api")
+api_version = os.environ.get("tianqiai_API_VERSION", "v2")
 api_type = os.environ.get("ZHIPU_API_TYPE", "zhipu_ai")
 # api_version = '2022-2-22-preview' if api_type == "azure" else None
 verify_ssl_certs = False  # No effect. Certificates are always verified.
@@ -50,7 +50,7 @@ __all__ = [
     "FineTune",
     "InvalidRequestError",
     "Model",
-    "zhipuaiError",
+    "tianqiaiError",
     "Search",
     "api_base",
     "api_key",

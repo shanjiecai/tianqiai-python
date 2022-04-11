@@ -1,14 +1,14 @@
 from urllib.parse import quote_plus
 
-from zhipuai import api_requestor, error, util
-import zhipuai
-from zhipuai.zhipuai_object import zhipuaiObject
-from zhipuai.util import ApiType
+from tianqiai import api_requestor, error, util
+import tianqiai
+from tianqiai.tianqiai_object import tianqiaiObject
+from tianqiai.util import ApiType
 
 
-class APIResource(zhipuaiObject):
+class APIResource(tianqiaiObject):
     api_prefix = ""
-    azure_api_prefix = 'zhipuai/deployments'
+    azure_api_prefix = 'tianqiai/deployments'
 
     @classmethod
     def retrieve(cls, id, api_key=None, request_id=None, **params):
@@ -45,14 +45,14 @@ class APIResource(zhipuaiObject):
                 " `unicode`)" % (type(self).__name__, id, type(id)),
                 "id",
             )
-        api_version = self.api_version or zhipuai.api_version
+        api_version = self.api_version or tianqiai.api_version
 
         # if self.typed_api_type == ApiType.AZURE:
         #     if not api_version:
         #         raise error.InvalidRequestError("An API version is required for the Azure API type.")
         #     if not operation:
         #         raise error.InvalidRequestError(
-        #             "The request needs an operation (eg: 'search') for the Azure zhipuai API type."
+        #             "The request needs an operation (eg: 'search') for the Azure tianqiai API type."
         #         )
         #     extn = quote_plus(id)
         #     return "/%s/%s/%s?api-version=%s" % (self.azure_api_prefix, extn, operation, api_version)
@@ -90,6 +90,6 @@ class APIResource(zhipuaiObject):
         response, _, api_key = requestor.request(
             method_, url_, params, request_id=request_id
         )
-        return util.convert_to_zhipuai_object(
+        return util.convert_to_tianqiai_object(
             response, api_key, api_version, organization
         )

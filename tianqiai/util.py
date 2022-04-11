@@ -5,11 +5,11 @@ import sys
 from typing import Optional
 from enum import Enum
 
-import zhipuai
+import tianqiai
 
-zhipuai_LOG = os.environ.get("zhipuai_LOG")
+tianqiai_LOG = os.environ.get("tianqiai_LOG")
 
-logger = logging.getLogger("zhipuai")
+logger = logging.getLogger("tianqiai")
 
 __all__ = [
     "log_info",
@@ -29,19 +29,19 @@ class ApiType(Enum):
     def from_str(label):
         # if label.lower() == 'azure':
         #     return ApiType.AZURE
-        # elif label.lower() in ('open_ai', 'zhipuai'):
+        # elif label.lower() in ('open_ai', 'tianqiai'):
         #     return ApiType.OPEN_AI
-        if label.lower() in ('zhipu_ai', 'zhipuai'):
+        if label.lower() in ('zhipu_ai', 'tianqiai'):
             return  ApiType.ZHIPU_AI
         else:
-            raise zhipuai.error.InvalidAPIType("The API type provided in invalid. Please select one of the supported API types: 'azure', 'open_ai'")    
+            raise tianqiai.error.InvalidAPIType("The API type provided in invalid. Please select one of the supported API types: 'azure', 'open_ai'")    
 
 
 def _console_log_level():
-    if zhipuai.log in ["debug", "info"]:
-        return zhipuai.log
-    elif zhipuai_LOG in ["debug", "info"]:
-        return zhipuai_LOG
+    if tianqiai.log in ["debug", "info"]:
+        return tianqiai.log
+    elif tianqiai_LOG in ["debug", "info"]:
+        return tianqiai_LOG
     else:
         return None
 
@@ -86,12 +86,12 @@ def logfmt(props):
 
 def get_object_classes():
     # This is here to avoid a circular dependency
-    from zhipuai.object_classes import OBJECT_CLASSES
+    from tianqiai.object_classes import OBJECT_CLASSES
 
     return OBJECT_CLASSES
 
 
-def convert_to_zhipuai_object(
+def convert_to_tianqiai_object(
     resp,
     api_key=None,
     api_version=None,
@@ -99,10 +99,10 @@ def convert_to_zhipuai_object(
     engine=None,
     plain_old_data=False,
 ):
-    # If we get a zhipuaiResponse, we'll want to return a zhipuaiObject.
+    # If we get a tianqiaiResponse, we'll want to return a tianqiaiObject.
 
     response_ms: Optional[int] = None
-    if isinstance(resp, zhipuai.zhipuai_response.zhipuaiResponse):
+    if isinstance(resp, tianqiai.tianqiai_response.tianqiaiResponse):
         organization = resp.organization
         response_ms = resp.response_ms
         resp = resp.data
@@ -111,22 +111,22 @@ def convert_to_zhipuai_object(
         return resp
     elif isinstance(resp, list):
         return [
-            convert_to_zhipuai_object(
+            convert_to_tianqiai_object(
                 i, api_key, api_version, organization, engine=engine
             )
             for i in resp
         ]
     elif isinstance(resp, dict) and not isinstance(
-        resp, zhipuai.zhipuai_object.zhipuaiObject
+        resp, tianqiai.tianqiai_object.tianqiaiObject
     ):
         resp = resp.copy()
         klass_name = resp.get("object")
         if isinstance(klass_name, str):
             klass = get_object_classes().get(
-                klass_name, zhipuai.zhipuai_object.zhipuaiObject
+                klass_name, tianqiai.tianqiai_object.tianqiaiObject
             )
         else:
-            klass = zhipuai.zhipuai_object.zhipuaiObject
+            klass = tianqiai.tianqiai_object.tianqiaiObject
 
         return klass.construct_from(
             resp,
@@ -141,17 +141,17 @@ def convert_to_zhipuai_object(
 
 
 def convert_to_dict(obj):
-    """Converts a zhipuaiObject back to a regular dict.
+    """Converts a tianqiaiObject back to a regular dict.
 
-    Nested zhipuaiObjects are also converted back to regular dicts.
+    Nested tianqiaiObjects are also converted back to regular dicts.
 
-    :param obj: The zhipuaiObject to convert.
+    :param obj: The tianqiaiObject to convert.
 
-    :returns: The zhipuaiObject as a dict.
+    :returns: The tianqiaiObject as a dict.
     """
     if isinstance(obj, list):
         return [convert_to_dict(i) for i in obj]
-    # This works by virtue of the fact that zhipuaiObjects _are_ dicts. The dict
+    # This works by virtue of the fact that tianqiaiObjects _are_ dicts. The dict
     # comprehension returns a regular dict and recursively applies the
     # conversion to each value.
     elif isinstance(obj, dict):
@@ -167,18 +167,18 @@ def merge_dicts(x, y):
 
 
 def default_api_key() -> str:
-    if zhipuai.api_key_path:
-        with open(zhipuai.api_key_path, "rt") as k:
+    if tianqiai.api_key_path:
+        with open(tianqiai.api_key_path, "rt") as k:
             api_key = k.read().strip()
             if not api_key.startswith("sk-"):
-                raise ValueError(f"Malformed API key in {zhipuai.api_key_path}.")
+                raise ValueError(f"Malformed API key in {tianqiai.api_key_path}.")
             return api_key
-    elif zhipuai.api_key is not None:
-        return zhipuai.api_key
+    elif tianqiai.api_key is not None:
+        return tianqiai.api_key
     else:
-        raise zhipuai.error.AuthenticationError(
-            "No API key provided. You can set your API key in code using 'zhipuai.api_key = <API-KEY>', or you can set the environment variable zhipuai_API_KEY=<API-KEY>). If your API key is stored in a file, you can point the zhipuai module at it with 'zhipuai.api_key_path = <PATH>'. You can generate API keys in the zhipuai web interface. See https://onboard.zhipuai.com for details, or email support@zhipuai.com if you have any questions."
+        raise tianqiai.error.AuthenticationError(
+            "No API key provided. You can set your API key in code using 'tianqiai.api_key = <API-KEY>', or you can set the environment variable tianqiai_API_KEY=<API-KEY>). If your API key is stored in a file, you can point the tianqiai module at it with 'tianqiai.api_key_path = <PATH>'. You can generate API keys in the tianqiai web interface. See https://onboard.tianqiai.com for details, or email support@tianqiai.com if you have any questions."
         )
 
 def default_api_version() ->str:
-    return zhipuai.api_version 
+    return tianqiai.api_version 

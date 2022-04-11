@@ -1,7 +1,7 @@
-import zhipuai
+import tianqiai
 
 
-class ZhipuAIError(Exception):
+class tianqiaiError(Exception):
     def __init__(
         self,
         message=None,
@@ -11,7 +11,7 @@ class ZhipuAIError(Exception):
         headers=None,
         code=None,
     ):
-        super(ZhipuAIError, self).__init__(message)
+        super(tianqiaiError, self).__init__(message)
 
         if http_body and hasattr(http_body, "decode"):
             try:
@@ -19,7 +19,7 @@ class ZhipuAIError(Exception):
             except BaseException:
                 http_body = (
                     "<Could not decode body as utf-8. "
-                    "Please report to support@zhipuai.com>"
+                    "Please report to support@tianqiai.com>"
                 )
 
         self._message = message
@@ -30,7 +30,7 @@ class ZhipuAIError(Exception):
         self.code = code
         self.request_id = self.headers.get("request-id", None)
         self.error = self.construct_error_object()
-        self.organization = self.headers.get("zhipuai-organization", None)
+        self.organization = self.headers.get("tianqiai-organization", None)
 
     def __str__(self):
         msg = self._message or "<empty message>"
@@ -40,7 +40,7 @@ class ZhipuAIError(Exception):
             return msg
 
     # Returns the underlying `Exception` (base class) message, which is usually
-    # the raw message returned by zhipuai's API. This was previously available
+    # the raw message returned by tianqiai's API. This was previously available
     # in python2 via `error.message`. Unlike `str(error)`, it omits "Request
     # req_..." from the beginning of the string.
     @property
@@ -63,12 +63,12 @@ class ZhipuAIError(Exception):
         ):
             return None
 
-        return zhipuai.api_resources.error_object.ErrorObject.construct_from(
+        return tianqiai.api_resources.error_object.ErrorObject.construct_from(
             self.json_body["error"]
         )
 
 
-class ApikeyError(ZhipuAIError):
+class ApikeyError(tianqiaiError):
     def __init__(
         self,
         message,
@@ -85,15 +85,15 @@ class ApikeyError(ZhipuAIError):
         self.should_retry = should_retry
 
 
-class APIError(ZhipuAIError):
+class APIError(tianqiaiError):
     pass
 
 
-class TryAgain(ZhipuAIError):
+class TryAgain(tianqiaiError):
     pass
 
 
-class APIConnectionError(ZhipuAIError):
+class APIConnectionError(tianqiaiError):
     def __init__(
         self,
         message,
@@ -110,7 +110,7 @@ class APIConnectionError(ZhipuAIError):
         self.should_retry = should_retry
 
 
-class InvalidRequestError(ZhipuAIError):
+class InvalidRequestError(tianqiaiError):
     def __init__(
         self,
         message,
@@ -148,26 +148,26 @@ class InvalidRequestError(ZhipuAIError):
         )
 
 
-class AuthenticationError(ZhipuAIError):
+class AuthenticationError(tianqiaiError):
     pass
 
 
-class PermissionError(ZhipuAIError):
+class PermissionError(tianqiaiError):
     pass
 
 
-class RateLimitError(ZhipuAIError):
+class RateLimitError(tianqiaiError):
     pass
 
 
-class ServiceUnavailableError(ZhipuAIError):
+class ServiceUnavailableError(tianqiaiError):
     pass
 
-class InvalidAPIType(ZhipuAIError):
+class InvalidAPIType(tianqiaiError):
     pass
 
 
-class SignatureVerificationError(ZhipuAIError):
+class SignatureVerificationError(tianqiaiError):
     def __init__(self, message, sig_header, http_body=None):
         super(SignatureVerificationError, self).__init__(message, http_body)
         self.sig_header = sig_header

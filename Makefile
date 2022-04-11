@@ -4,6 +4,6 @@ build:
 	python setup.py sdist
 
 upload:
-	twine upload dist/zhipuai-*.tar.gz
-	rm dist/zhipuai-*.tar.gz
+	twine upload dist/tianqiai-*.tar.gz
+	rm dist/tianqiai-*.tar.gz
 
