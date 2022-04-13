@@ -211,7 +211,7 @@ class APIRequestor:
         if self.organization:
             headers["tianqiai-Organization"] = self.organization
 
-        if self.api_version is not None and self.api_type == ApiType.ZHIPU_AI:
+        if self.api_version is not None and self.api_type == ApiType.TIANQI_AI:
             headers["tianqiai-Version"] = self.api_version
         if request_id is not None:
             headers["X-Request-Id"] = request_id

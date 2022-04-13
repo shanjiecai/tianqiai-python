@@ -1,63 +1,65 @@
-# import datetime
-# import os
-# import signal
-# import sys
-# import warnings
-# from functools import partial
-# from typing import Optional
+import datetime
+from email.policy import default
+import os
+import signal
+import sys
+import warnings
+from functools import partial
+from typing import Optional
+from langcodes import Language
 
-# import requests
+import requests
 
-# import tianqiai
-# from tianqiai.upload_progress import BufferReader
-# from tianqiai.validators import (
-#     apply_necessary_remediation,
-#     apply_validators,
-#     get_search_validators,
-#     get_validators,
-#     read_any_format,
-#     write_out_file,
-#     write_out_search_file,
-# )
-# # import tianqiai.wandb_logger
-
-
-# class bcolors:
-#     HEADER = "\033[95m"
-#     OKBLUE = "\033[94m"
-#     OKGREEN = "\033[92m"
-#     WARNING = "\033[93m"
-#     FAIL = "\033[91m"
-#     ENDC = "\033[0m"
-#     BOLD = "\033[1m"
-#     UNDERLINE = "\033[4m"
+import tianqiai
+from tianqiai.upload_progress import BufferReader
+from tianqiai.validators import (
+    apply_necessary_remediation,
+    apply_validators,
+    get_search_validators,
+    get_validators,
+    read_any_format,
+    write_out_file,
+    write_out_search_file,
+)
+# import tianqiai.wandb_logger
 
 
-# def organization_info(obj):
-#     organization = getattr(obj, "organization", None)
-#     if organization is not None:
-#         return "[organization={}] ".format(organization)
-#     else:
-#         return ""
+class bcolors:
+    HEADER = "\033[95m"
+    OKBLUE = "\033[94m"
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
 
 
-# def display(obj):
-#     sys.stderr.write(organization_info(obj))
-#     sys.stderr.flush()
-#     print(obj)
+def organization_info(obj):
+    organization = getattr(obj, "organization", None)
+    if organization is not None:
+        return "[organization={}] ".format(organization)
+    else:
+        return ""
 
 
-# def display_error(e):
-#     extra = (
-#         " (HTTP status code: {})".format(e.http_status)
-#         if e.http_status is not None
-#         else ""
-#     )
-#     sys.stderr.write(
-#         "{}{}Error:{} {}{}\n".format(
-#             organization_info(e), bcolors.FAIL, bcolors.ENDC, e, extra
-#         )
-#     )
+def display(obj):
+    sys.stderr.write(organization_info(obj))
+    sys.stderr.flush()
+    print(obj)
+
+
+def display_error(e):
+    extra = (
+        " (HTTP status code: {})".format(e.http_status)
+        if e.http_status is not None
+        else ""
+    )
+    sys.stderr.write(
+        "{}{}Error:{} {}{}\n".format(
+            organization_info(e), bcolors.FAIL, bcolors.ENDC, e, extra
+        )
+    )
 
 
 # class Engine:
@@ -146,42 +148,37 @@
 #         display(engines)
 
 
-# class Completion:
-#     @classmethod
-#     def create(cls, args):
-#         if args.n is not None and args.n > 1 and args.stream:
-#             raise ValueError("Can't stream completions with n>1 with the current CLI")
+class Completion:
+    @classmethod
+    def create(cls, args):
+        # if args.n is not None and args.n > 1 and args.stream:
+        #     raise ValueError("Can't stream completions with n>1 with the current CLI")
 
-#         if args.engine and args.model:
-#             warnings.warn(
-#                 "In most cases, you should not be specifying both engine and model."
-#             )
+        # if args.engine and args.model:
+        #     warnings.warn(
+        #         "In most cases, you should not be specifying both engine and model."
+        #     )
 
-#         resp = tianqiai.Completion.create(
-#             engine=args.engine,
-#             model=args.model,
-#             n=args.n,
-#             max_tokens=args.max_tokens,
-#             logprobs=args.logprobs,
-#             prompt=args.prompt,
-#             stream=args.stream,
-#             temperature=args.temperature,
-#             top_p=args.top_p,
-#             stop=args.stop,
-#             echo=True,
-#         )
-#         if not args.stream:
-#             resp = [resp]
+        resp = tianqiai.Completion.create(
+            model=args.model,
+            max_tokens=args.max_tokens,
+            prompt=args.prompt,
+            iprompt=args.iprompt,
+            temperature=args.temperature,
+            top_p=args.top_p,
+            language=args.language,
+            presence_penalty=args.presence_penalty,
+            frequency_penalty=args.frequency_penalty,
+            echo=args.echo
+        )
+        # if not args.stream:
+        #     resp = [resp]
 
-#         for part in resp:
-#             choices = part["choices"]
-#             for c_idx, c in enumerate(sorted(choices, key=lambda s: s["index"])):
-#                 if len(choices) > 1:
-#                     sys.stdout.write("===== Completion {} =====\n".format(c_idx))
-#                 sys.stdout.write(c["text"])
-#                 if len(choices) > 1:
-#                     sys.stdout.write("\n")
-#                 sys.stdout.flush()
+        
+        sys.stdout.write("===== Completion =====\n")
+        sys.stdout.write(resp["result"]["output"]["text"])
+        sys.stdout.write("\n") 
+        sys.stdout.flush()
 
 
 # class Model:
@@ -536,17 +533,17 @@
 #         )
 
 
-# # class WandbLogger:
-# #     @classmethod
-# #     def sync(cls, args):
-# #         resp = tianqiai.wandb_logger.WandbLogger.sync(
-# #             id=args.id,
-# #             n_fine_tunes=args.n_fine_tunes,
-# #             project=args.project,
-# #             entity=args.entity,
-# #             force=args.force,
-# #         )
-# #         print(resp)
+# class WandbLogger:
+#     @classmethod
+#     def sync(cls, args):
+#         resp = tianqiai.wandb_logger.WandbLogger.sync(
+#             id=args.id,
+#             n_fine_tunes=args.n_fine_tunes,
+#             project=args.project,
+#             entity=args.entity,
+#             force=args.force,
+#         )
+#         print(resp)
 
 
 # def tools_register(parser):
@@ -628,26 +625,26 @@
 #     sub.set_defaults(func=partial(Search.prepare_data, purpose="answer"))
 
 
-# def api_register(parser):
-#     # Engine management
-#     subparsers = parser.add_subparsers(help="All API subcommands")
+def api_register(parser):
+    # Engine management
+    subparsers = parser.add_subparsers(help="All API subcommands")
 
-#     def help(args):
-#         parser.print_help()
+    def help(args):
+        parser.print_help()
 
-#     parser.set_defaults(func=help)
+    parser.set_defaults(func=help)
 
-#     sub = subparsers.add_parser("engines.list")
-#     sub.set_defaults(func=Engine.list)
+    # sub = subparsers.add_parser("engines.list")
+    # sub.set_defaults(func=Engine.list)
 
-#     sub = subparsers.add_parser("engines.get")
-#     sub.add_argument("-i", "--id", required=True)
-#     sub.set_defaults(func=Engine.get)
+    # sub = subparsers.add_parser("engines.get")
+    # sub.add_argument("-i", "--id", required=True)
+    # sub.set_defaults(func=Engine.get)
 
-#     sub = subparsers.add_parser("engines.update")
-#     sub.add_argument("-i", "--id", required=True)
-#     sub.add_argument("-r", "--replicas", type=int)
-#     sub.set_defaults(func=Engine.update)
+    # sub = subparsers.add_parser("engines.update")
+    # sub.add_argument("-i", "--id", required=True)
+    # sub.add_argument("-r", "--replicas", type=int)
+    # sub.set_defaults(func=Engine.update)
 
 #     sub = subparsers.add_parser("engines.generate")
 #     sub.add_argument("-i", "--id", required=True)
@@ -729,245 +726,253 @@
 #     sub.add_argument("-q", "--query", required=True, help="Search query")
 #     sub.set_defaults(func=Engine.search)
 
-#     # Completions
-#     sub = subparsers.add_parser("completions.create")
-#     sub.add_argument(
-#         "-e",
-#         "--engine",
-#         help="The engine to use. See https://beta.tianqiai.com/docs/engines for more about what engines are available.",
-#     )
-#     sub.add_argument(
-#         "-m",
-#         "--model",
-#         help="The model to use. At most one of `engine` or `model` should be specified.",
-#     )
-#     sub.add_argument(
-#         "--stream", help="Stream tokens as they're ready.", action="store_true"
-#     )
-#     sub.add_argument("-p", "--prompt", help="An optional prompt to complete from")
-#     sub.add_argument(
-#         "-M", "--max-tokens", help="The maximum number of tokens to generate", type=int
-#     )
-#     sub.add_argument(
-#         "-t",
-#         "--temperature",
-#         help="""What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
+    # Completions
+    sub = subparsers.add_parser("completions.create")
+    # sub.add_argument(
+    #     "-e",
+    #     "--engine",
+    #     help="The engine to use. See https://beta.tianqiai.com/docs/engines for more about what engines are available.",
+    # )
+    sub.add_argument(
+        "-m",
+        "--model",
+        help="The model to use. At most one of `engine` or `model` should be specified.",
+    )
+    sub.add_argument(
+        "--stream", help="Stream tokens as they're ready.", action="store_true"
+    )
+    sub.add_argument("-p", "--prompt", help="An optional prompt to complete from")
+    sub.add_argument("-ip", "--iprompt", help="An optional inverse prompt to complete from")
+    sub.add_argument("-l", "--language", help="The language you use, including zh-CN and en-US") 
+    sub.add_argument("--presence_penalty", help="Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.")
+    sub.add_argument("--frequency_penalty", help="Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.")  
 
-# Mutually exclusive with `top_p`.""",
-#         type=float,
-#     )
-#     sub.add_argument(
-#         "-P",
-#         "--top_p",
-#         help="""An alternative to sampling with temperature, called nucleus sampling, where the considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10%% probability mass are considered.
+    sub.add_argument(
+        "-M", "--max-tokens", help="The maximum number of tokens to generate,default is 200", type=int, default=200
+    )
+    sub.add_argument(
+        "-t",
+        "--temperature",
+        help="""What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
 
-#             Mutually exclusive with `temperature`.""",
-#         type=float,
-#     )
-#     sub.add_argument(
-#         "-n",
-#         "--n",
-#         help="How many sub-completions to generate for each prompt.",
-#         type=int,
-#     )
-#     sub.add_argument(
-#         "--logprobs",
-#         help="Include the log probabilites on the `logprobs` most likely tokens, as well the chosen tokens. So for example, if `logprobs` is 10, the API will return a list of the 10 most likely tokens. If `logprobs` is 0, only the chosen tokens will have logprobs returned.",
-#         type=int,
-#     )
-#     sub.add_argument(
-#         "--stop", help="A stop sequence at which to stop generating tokens."
-#     )
-#     sub.set_defaults(func=Completion.create)
+Mutually exclusive with `top_p`.""",
+        type=float,
+    )
+    sub.add_argument(
+        "-P",
+        "--top_p",
+        help="""An alternative to sampling with temperature, called nucleus sampling, where the considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10%% probability mass are considered.
 
-#     # Models
-#     sub = subparsers.add_parser("models.list")
-#     sub.set_defaults(func=Model.list)
+            Mutually exclusive with `temperature`.""",
+        type=float,
+    )
+    sub.add_argument(
+        "-n",
+        "--n",
+        help="How many sub-completions to generate for each prompt.",
+        type=int,
+    )
+    sub.add_argument(
+        "--logprobs",
+        help="Include the log probabilites on the `logprobs` most likely tokens, as well the chosen tokens. So for example, if `logprobs` is 10, the API will return a list of the 10 most likely tokens. If `logprobs` is 0, only the chosen tokens will have logprobs returned.",
+        type=int,
+    )
+    sub.add_argument(
+        "--stop", help="A stop sequence at which to stop generating tokens."
+    )
+    sub.add_argument(
+        "-e", "--echo", help="Whether to return the result of prompt and completion splicing",type=bool, default=False
+    )
+    sub.set_defaults(func=Completion.create)
 
-#     sub = subparsers.add_parser("models.get")
-#     sub.add_argument("-i", "--id", required=True, help="The model ID")
-#     sub.set_defaults(func=Model.get)
+    # # Models
+    # sub = subparsers.add_parser("models.list")
+    # sub.set_defaults(func=Model.list)
 
-#     sub = subparsers.add_parser("models.delete")
-#     sub.add_argument("-i", "--id", required=True, help="The model ID")
-#     sub.set_defaults(func=Model.delete)
+    # sub = subparsers.add_parser("models.get")
+    # sub.add_argument("-i", "--id", required=True, help="The model ID")
+    # sub.set_defaults(func=Model.get)
 
-#     # Files
-#     sub = subparsers.add_parser("files.create")
+    # sub = subparsers.add_parser("models.delete")
+    # sub.add_argument("-i", "--id", required=True, help="The model ID")
+    # sub.set_defaults(func=Model.delete)
 
-#     sub.add_argument(
-#         "-f",
-#         "--file",
-#         required=True,
-#         help="File to upload",
-#     )
-#     sub.add_argument(
-#         "-p",
-#         "--purpose",
-#         help="Why are you uploading this file? (see https://beta.tianqiai.com/docs/api-reference/ for purposes)",
-#         required=True,
-#     )
-#     sub.add_argument(
-#         "-m",
-#         "--model",
-#         help="Model for search indexing (e.g. 'ada'). Only meaningful if --purpose is 'search'.",
-#     )
-#     sub.set_defaults(func=File.create)
+    # # Files
+    # sub = subparsers.add_parser("files.create")
 
-#     sub = subparsers.add_parser("files.get")
-#     sub.add_argument("-i", "--id", required=True, help="The files ID")
-#     sub.set_defaults(func=File.get)
+    # sub.add_argument(
+    #     "-f",
+    #     "--file",
+    #     required=True,
+    #     help="File to upload",
+    # )
+    # sub.add_argument(
+    #     "-p",
+    #     "--purpose",
+    #     help="Why are you uploading this file? (see https://beta.tianqiai.com/docs/api-reference/ for purposes)",
+    #     required=True,
+    # )
+    # sub.add_argument(
+    #     "-m",
+    #     "--model",
+    #     help="Model for search indexing (e.g. 'ada'). Only meaningful if --purpose is 'search'.",
+    # )
+    # sub.set_defaults(func=File.create)
 
-#     sub = subparsers.add_parser("files.delete")
-#     sub.add_argument("-i", "--id", required=True, help="The files ID")
-#     sub.set_defaults(func=File.delete)
+    # sub = subparsers.add_parser("files.get")
+    # sub.add_argument("-i", "--id", required=True, help="The files ID")
+    # sub.set_defaults(func=File.get)
 
-#     sub = subparsers.add_parser("files.list")
-#     sub.set_defaults(func=File.list)
+    # sub = subparsers.add_parser("files.delete")
+    # sub.add_argument("-i", "--id", required=True, help="The files ID")
+    # sub.set_defaults(func=File.delete)
 
-#     # Search
-#     sub = subparsers.add_parser("search.create_alpha")
+    # sub = subparsers.add_parser("files.list")
+    # sub.set_defaults(func=File.list)
 
-#     sub.add_argument(
-#         "-f",
-#         "--file",
-#         required=True,
-#         help="ID for previously uploaded file that contains the documents you want to search",
-#     )
-#     sub.add_argument(
-#         "-m",
-#         "--max_documents",
-#         help="The maximum number of documents to return",
-#         type=int,
-#         default=200,
-#     )
-#     sub.add_argument(
-#         "-q",
-#         "--query",
-#         required=True,
-#         help="Search query",
-#     )
-#     sub.set_defaults(func=Search.create_alpha)
+    # # Search
+    # sub = subparsers.add_parser("search.create_alpha")
 
-#     # Finetune
-#     sub = subparsers.add_parser("fine_tunes.list")
-#     sub.set_defaults(func=FineTune.list)
+    # sub.add_argument(
+    #     "-f",
+    #     "--file",
+    #     required=True,
+    #     help="ID for previously uploaded file that contains the documents you want to search",
+    # )
+    # sub.add_argument(
+    #     "-m",
+    #     "--max_documents",
+    #     help="The maximum number of documents to return",
+    #     type=int,
+    #     default=200,
+    # )
+    # sub.add_argument(
+    #     "-q",
+    #     "--query",
+    #     required=True,
+    #     help="Search query",
+    # )
+    # sub.set_defaults(func=Search.create_alpha)
 
-#     sub = subparsers.add_parser("fine_tunes.create")
-#     sub.add_argument(
-#         "-t",
-#         "--training_file",
-#         required=True,
-#         help="JSONL file containing prompt-completion examples for training. This can "
-#         "be the ID of a file uploaded through the tianqiai API (e.g. file-abcde12345), "
-#         'a local file path, or a URL that starts with "http".',
-#     )
-#     sub.add_argument(
-#         "-v",
-#         "--validation_file",
-#         help="JSONL file containing prompt-completion examples for validation. This can "
-#         "be the ID of a file uploaded through the tianqiai API (e.g. file-abcde12345), "
-#         'a local file path, or a URL that starts with "http".',
-#     )
-#     sub.add_argument(
-#         "--no_check_if_files_exist",
-#         dest="check_if_files_exist",
-#         action="store_false",
-#         help="If this argument is set and training_file or validation_file are file paths, immediately upload them. If this argument is not set, check if they may be duplicates of already uploaded files before uploading, based on file name and file size.",
-#     )
-#     sub.add_argument(
-#         "-m",
-#         "--model",
-#         help="The model to start fine-tuning from",
-#     )
-#     sub.add_argument(
-#         "--no_follow",
-#         action="store_true",
-#         help="If set, returns immediately after creating the job. Otherwise, streams events and waits for the job to complete.",
-#     )
-#     sub.add_argument(
-#         "--n_epochs",
-#         type=int,
-#         help="The number of epochs to train the model for. An epoch refers to one "
-#         "full cycle through the training dataset.",
-#     )
-#     sub.add_argument(
-#         "--batch_size",
-#         type=int,
-#         help="The batch size to use for training. The batch size is the number of "
-#         "training examples used to train a single forward and backward pass.",
-#     )
-#     sub.add_argument(
-#         "--learning_rate_multiplier",
-#         type=float,
-#         help="The learning rate multiplier to use for training. The fine-tuning "
-#         "learning rate is determined by the original learning rate used for "
-#         "pretraining multiplied by this value.",
-#     )
-#     sub.add_argument(
-#         "--prompt_loss_weight",
-#         type=float,
-#         help="The weight to use for the prompt loss. The optimum value here depends "
-#         "depends on your use case. This determines how much the model prioritizes "
-#         "learning from prompt tokens vs learning from completion tokens.",
-#     )
-#     sub.add_argument(
-#         "--compute_classification_metrics",
-#         action="store_true",
-#         help="If set, we calculate classification-specific metrics such as accuracy "
-#         "and F-1 score using the validation set at the end of every epoch.",
-#     )
-#     sub.set_defaults(compute_classification_metrics=None)
-#     sub.add_argument(
-#         "--classification_n_classes",
-#         type=int,
-#         help="The number of classes in a classification task. This parameter is "
-#         "required for multiclass classification.",
-#     )
-#     sub.add_argument(
-#         "--classification_positive_class",
-#         help="The positive class in binary classification. This parameter is needed "
-#         "to generate precision, recall and F-1 metrics when doing binary "
-#         "classification.",
-#     )
-#     sub.add_argument(
-#         "--classification_betas",
-#         type=float,
-#         nargs="+",
-#         help="If this is provided, we calculate F-beta scores at the specified beta "
-#         "values. The F-beta score is a generalization of F-1 score. This is only "
-#         "used for binary classification.",
-#     )
-#     sub.set_defaults(func=FineTune.create)
+    # # Finetune
+    # sub = subparsers.add_parser("fine_tunes.list")
+    # sub.set_defaults(func=FineTune.list)
 
-#     sub = subparsers.add_parser("fine_tunes.get")
-#     sub.add_argument("-i", "--id", required=True, help="The id of the fine-tune job")
-#     sub.set_defaults(func=FineTune.get)
+    # sub = subparsers.add_parser("fine_tunes.create")
+    # sub.add_argument(
+    #     "-t",
+    #     "--training_file",
+    #     required=True,
+    #     help="JSONL file containing prompt-completion examples for training. This can "
+    #     "be the ID of a file uploaded through the tianqiai API (e.g. file-abcde12345), "
+    #     'a local file path, or a URL that starts with "http".',
+    # )
+    # sub.add_argument(
+    #     "-v",
+    #     "--validation_file",
+    #     help="JSONL file containing prompt-completion examples for validation. This can "
+    #     "be the ID of a file uploaded through the tianqiai API (e.g. file-abcde12345), "
+    #     'a local file path, or a URL that starts with "http".',
+    # )
+    # sub.add_argument(
+    #     "--no_check_if_files_exist",
+    #     dest="check_if_files_exist",
+    #     action="store_false",
+    #     help="If this argument is set and training_file or validation_file are file paths, immediately upload them. If this argument is not set, check if they may be duplicates of already uploaded files before uploading, based on file name and file size.",
+    # )
+    # sub.add_argument(
+    #     "-m",
+    #     "--model",
+    #     help="The model to start fine-tuning from",
+    # )
+    # sub.add_argument(
+    #     "--no_follow",
+    #     action="store_true",
+    #     help="If set, returns immediately after creating the job. Otherwise, streams events and waits for the job to complete.",
+    # )
+    # sub.add_argument(
+    #     "--n_epochs",
+    #     type=int,
+    #     help="The number of epochs to train the model for. An epoch refers to one "
+    #     "full cycle through the training dataset.",
+    # )
+    # sub.add_argument(
+    #     "--batch_size",
+    #     type=int,
+    #     help="The batch size to use for training. The batch size is the number of "
+    #     "training examples used to train a single forward and backward pass.",
+    # )
+    # sub.add_argument(
+    #     "--learning_rate_multiplier",
+    #     type=float,
+    #     help="The learning rate multiplier to use for training. The fine-tuning "
+    #     "learning rate is determined by the original learning rate used for "
+    #     "pretraining multiplied by this value.",
+    # )
+    # sub.add_argument(
+    #     "--prompt_loss_weight",
+    #     type=float,
+    #     help="The weight to use for the prompt loss. The optimum value here depends "
+    #     "depends on your use case. This determines how much the model prioritizes "
+    #     "learning from prompt tokens vs learning from completion tokens.",
+    # )
+    # sub.add_argument(
+    #     "--compute_classification_metrics",
+    #     action="store_true",
+    #     help="If set, we calculate classification-specific metrics such as accuracy "
+    #     "and F-1 score using the validation set at the end of every epoch.",
+    # )
+    # sub.set_defaults(compute_classification_metrics=None)
+    # sub.add_argument(
+    #     "--classification_n_classes",
+    #     type=int,
+    #     help="The number of classes in a classification task. This parameter is "
+    #     "required for multiclass classification.",
+    # )
+    # sub.add_argument(
+    #     "--classification_positive_class",
+    #     help="The positive class in binary classification. This parameter is needed "
+    #     "to generate precision, recall and F-1 metrics when doing binary "
+    #     "classification.",
+    # )
+    # sub.add_argument(
+    #     "--classification_betas",
+    #     type=float,
+    #     nargs="+",
+    #     help="If this is provided, we calculate F-beta scores at the specified beta "
+    #     "values. The F-beta score is a generalization of F-1 score. This is only "
+    #     "used for binary classification.",
+    # )
+    # sub.set_defaults(func=FineTune.create)
 
-#     sub = subparsers.add_parser("fine_tunes.results")
-#     sub.add_argument("-i", "--id", required=True, help="The id of the fine-tune job")
-#     sub.set_defaults(func=FineTune.results)
+    # sub = subparsers.add_parser("fine_tunes.get")
+    # sub.add_argument("-i", "--id", required=True, help="The id of the fine-tune job")
+    # sub.set_defaults(func=FineTune.get)
 
-#     sub = subparsers.add_parser("fine_tunes.events")
-#     sub.add_argument("-i", "--id", required=True, help="The id of the fine-tune job")
+    # sub = subparsers.add_parser("fine_tunes.results")
+    # sub.add_argument("-i", "--id", required=True, help="The id of the fine-tune job")
+    # sub.set_defaults(func=FineTune.results)
 
-#     # TODO(rachel): Remove this in 1.0
-#     sub.add_argument(
-#         "-s",
-#         "--stream",
-#         action="store_true",
-#         help="[DEPRECATED] If set, events will be streamed until the job is done. Otherwise, "
-#         "displays the event history to date.",
-#     )
-#     sub.set_defaults(func=FineTune.events)
+    # sub = subparsers.add_parser("fine_tunes.events")
+    # sub.add_argument("-i", "--id", required=True, help="The id of the fine-tune job")
 
-#     sub = subparsers.add_parser("fine_tunes.follow")
-#     sub.add_argument("-i", "--id", required=True, help="The id of the fine-tune job")
-#     sub.set_defaults(func=FineTune.follow)
+    # # TODO(rachel): Remove this in 1.0
+    # sub.add_argument(
+    #     "-s",
+    #     "--stream",
+    #     action="store_true",
+    #     help="[DEPRECATED] If set, events will be streamed until the job is done. Otherwise, "
+    #     "displays the event history to date.",
+    # )
+    # sub.set_defaults(func=FineTune.events)
 
-#     sub = subparsers.add_parser("fine_tunes.cancel")
-#     sub.add_argument("-i", "--id", required=True, help="The id of the fine-tune job")
-#     sub.set_defaults(func=FineTune.cancel)
+    # sub = subparsers.add_parser("fine_tunes.follow")
+    # sub.add_argument("-i", "--id", required=True, help="The id of the fine-tune job")
+    # sub.set_defaults(func=FineTune.follow)
+
+    # sub = subparsers.add_parser("fine_tunes.cancel")
+    # sub.add_argument("-i", "--id", required=True, help="The id of the fine-tune job")
+    # sub.set_defaults(func=FineTune.cancel)
 
 
 # def wandb_register(parser):

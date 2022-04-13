@@ -30,7 +30,7 @@ python setup.py install
 The library needs to be configured with your account's secret key which is available on the [website](https://beta.tianqiai.com/account/api-keys). Either set it as the `tianqiai_API_KEY` environment variable before using the library:
 
 ```bash
-export tianqiai_API_KEY='sk-...'
+export TIANQIAI_API_KEY='sk-...'
 ```
 
 Or set `tianqiai.api_key` to its value:
@@ -51,7 +51,10 @@ print(completion.choices[0].text)
 
 ### Command-line interface
 
-Coming soon
+This library additionally provides an tianqiai command-line utility which makes it easy to interact with the API from your terminal. Run tianqiai api completions.create -h for usage.
+```
+tianqiai api completions.create -p "问题：冬天，中国哪座城市最适合避寒？问题描述：能推荐一些国内适合冬天避寒的城市吗？回答用户：旅游爱好者 回答：" -ip "冬天，中国哪座城市最适合避寒？" -l "zh-CN" -m "glm" -M 200
+```
 
 ## Example code
 

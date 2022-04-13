@@ -18,12 +18,12 @@ __all__ = [
     "logfmt",
 ]
 
-api_key_to_header = lambda api, key: {"Authorization": f"Bearer {key}"} if api == ApiType.ZHIPU_AI else {"api-key": f"{key}"}
+api_key_to_header = lambda api, key: {"Authorization": f"Bearer {key}"} if api == ApiType.TIANQI_AI else {"api-key": f"{key}"}
 
 class ApiType(Enum):
     # AZURE = 1
     # OPEN_AI = 2
-    ZHIPU_AI = 1
+    TIANQI_AI = 1
 
     @staticmethod
     def from_str(label):
@@ -31,8 +31,8 @@ class ApiType(Enum):
         #     return ApiType.AZURE
         # elif label.lower() in ('open_ai', 'tianqiai'):
         #     return ApiType.OPEN_AI
-        if label.lower() in ('zhipu_ai', 'tianqiai'):
-            return  ApiType.ZHIPU_AI
+        if label.lower() in ('tianqi_ai', 'tianqiai'):
+            return  ApiType.TIANQI_AI
         else:
             raise tianqiai.error.InvalidAPIType("The API type provided in invalid. Please select one of the supported API types: 'azure', 'open_ai'")    
 

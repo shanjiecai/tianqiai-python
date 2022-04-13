@@ -21,12 +21,11 @@ setup(
     ],
     extras_require={"dev": ["black~=21.6b0", "pytest==6.*"]},
     python_requires=">=3.6.1",
-    # entry_points={
-    #     'console_scripts': [
-    #         'tianqiai=tianqiai._tianqiai_scripts:main',
-    #     ],
-    # },
-    entry_points={},
+    entry_points={
+        'console_scripts': [
+            'tianqiai=tianqiai._tianqiai_scripts:main',
+        ],
+    },
     packages=find_packages(exclude=["tests", "tests.*"]),
     package_data={
         "tianqiai": [

@@ -45,7 +45,7 @@ class EngineAPIResource(APIResource):
 
         #     extn = quote_plus(engine)
         #     return "/engines/%s/%ss" % (extn, base)
-        if typed_api_type == ApiType.ZHIPU_AI: 
+        if typed_api_type == ApiType.TIANQI_AI: 
             # if engine is None:
             #     return "/%ss" % (base)
 
