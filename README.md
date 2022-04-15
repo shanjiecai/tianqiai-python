@@ -36,17 +36,20 @@ export TIANQIAI_API_KEY='sk-...'
 Or set `tianqiai.api_key` to its value:
 
 ```python
+import os
 import tianqiai
-tianqiai.api_key = "sk-..."
+# tianqiai.api_key = os.getenv("tianqiai_API_KEY")
+tianqiai.api_key = ""
 
-# print the first engine's id
-print(engines.data[0].id)
-
-# create a completion
-completion = tianqiai.Completion.create(model="glm", prompt="Hello world")
-
-# print the completion
-print(completion.choices[0].text)
+result = tianqiai.Completion.create(
+  model="glm",
+  prompt="问题：冬天，中国哪座城市最适合避寒？问题描述：能推荐一些国内适合冬天避寒的城市吗？回答用户：旅游爱好者 回答：",
+  iprompt = "冬天，中国哪座城市最适合避寒？",
+  max_tokens=512,
+  language="zh-CN",
+  temperature=0.9,
+)
+print(result)
 ```
 
 ### Command-line interface
